@@ -1,0 +1,56 @@
+<div class="jumbotron">
+    <h1>Demo deploy application to Google Cloud</h1>
+    <p>Welcome to my first application on Google Cloud</p>
+    
+    <div class="wrap-header row">
+        <h4 class="col">This is my list users</h4>
+        <button type="button" class="btn btn-success btn-add-user">Add user</button>
+    </div>
+
+    <div class="wrap-list-user">
+        <% listUser.map(user => { %>
+            <div style="background-color: rgb(132, 182, 224); padding: 10px; margin: 20px 0px; border-radius: 10px;" class="row info-user">
+                <div class="col">
+                    <h5><%- user.username %></h6>
+                    <p>Age: <%- user.age %></p>
+                </div>
+
+                <div class="wrap-button col" style="align-self: center;">
+                    <button type="button" class="btn btn-danger btn-rm-user" _userID="<%- user._id %>">Remove</button>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".btn-rm-user").click(function(){
+            const userID = $(this).attr('_userID');
+            
+            $.ajax({
+                url: `/remove-users?userID=${userID}`,
+                method: 'GET',
+                success: (result) => {
+                    location.reload();
+                },
+                error: (err) => {
+                    alert('Oops! Error occurred!');
+                }
+            });
+        });
+
+        $(".btn-add-user").click(function(){
+            $.ajax({
+                url: `/users`,
+                method: 'POST',
+                success: (result) => {
+                    location.reload();
+                },
+                error: (err) => {
+                    alert('Oops! Error occurred!');
+                }
+            });
+        });
+    });
+</script>
