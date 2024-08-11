@@ -1,6 +1,7 @@
 const express = require('express');
 const { Client } = require('@elastic/elasticsearch');
 const DOCKER_ELASTICSEARCH_HOST = 'http://127.0.0.1:9200';
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
@@ -68,8 +69,13 @@ app.get('/search', async (req, res) => {
   }
 });
 
+app.get('/', async (req, res) => {
+  res.status(200).json({
+    message: 'Hello World!'
+  });
+});
+
 // Khởi động server
-const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
