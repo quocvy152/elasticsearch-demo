@@ -1,9 +1,10 @@
 const express = require('express');
+require('dotenv').config()
 const { Client } = require('@elastic/elasticsearch');
 
 const DOCKER_ELASTICSEARCH_HOST = 'http://127.0.0.1:9200';
-const PORT = process.env.PORT || 3000;
-const { USER_COLL } = require('./mongodb');
+const PORT = process.env.NODE_DOCKER_PORT || 3000;
+const { USER_COLL } = require('./connection_db');
 
 const app = express();
 
@@ -108,7 +109,8 @@ app.get('/users', async (req, res) => {
   } catch (error) {
     res.status(404).json({
       error: true,
-      data: null
+      data: null,
+      message: error.message
     });
   }
 });
