@@ -1,10 +1,12 @@
 const express = require('express');
-require('dotenv').config()
 const { Client } = require('@elastic/elasticsearch');
+
+require('dotenv').config()
 
 const DOCKER_ELASTICSEARCH_HOST = 'http://127.0.0.1:9200';
 const PORT = process.env.NODE_DOCKER_PORT || 3000;
 const { USER_COLL } = require('./connection_db');
+const { POSTGRES_CONNECTION } = require('./connect_postgre_db');
 
 const app = express();
 
@@ -102,9 +104,11 @@ app.post('/users', async (req, res) => {
 app.get('/users', async (req, res) => {
   try {
     const listUser = await USER_COLL.find({});
+    const RENDER_CODE = 'LIST_USERS';
 
     res.render('pages/index', {
-      listUser
+      listUser,
+      RENDER_CODE
     })
   } catch (error) {
     res.status(404).json({
@@ -135,6 +139,50 @@ app.get('/remove-users', async (req, res) => {
     res.status(404).json({
       error: true,
       data: null
+    });
+  }
+});
+
+app.get('/players', async (req, res) => {
+  try {
+    await POSTGRES_CONNECTION.query(`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`);
+    const resGetListPlayer = await POSTGRES_CONNECTION.query('SELECT * FROM players ORDER BY balance DESC');
+  
+    const RENDER_CODE = 'LIST_PLAYERS';
+
+    res.render('pages/index', {
+      listPlayer: resGetListPlayer?.rows,
+      RENDER_CODE
+    })
+  } catch (error) {
+    console.log({error})
+  }
+});
+
+// API test prevent multi request update on same record
+app.post('/update-players', async (req, res) => {
+  try {
+    const { playerNumber } = req.query;
+
+    /**
+     * DEMO ISOLATION 1: SERIALIZABLE READ
+     */
+    await POSTGRES_CONNECTION.query(`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`);
+    await POSTGRES_CONNECTION.query(`START TRANSACTION;`);
+    await POSTGRES_CONNECTION.query(`UPDATE players SET balance = balance + 100 WHERE number = ${playerNumber};`);
+  
+    setTimeout(async () => {
+      await POSTGRES_CONNECTION.query(`COMMIT;`);
+    }, 5000)
+    
+    res.status(200).json({
+      error: false,
+      message: 'OK'
+    })
+  } catch (error) {
+    res.status(404).json({
+      error: true,
+      message: 'Error occurred'
     });
   }
 });

@@ -10,12 +10,20 @@
             <%- include('../partials/header'); %>
         </header>
 
+
         <main>
-            <%- include('./list-user'); %>            
+            <% if(RENDER_CODE === 'LIST_USERS') { %>
+                <%- include('./list-user'); %>            
+            <% } %>
+
+            <% if(RENDER_CODE === 'LIST_PLAYERS') { %>
+                <%- include('./list-player'); %>            
+            <% } %>
         </main>
 
         <footer>
             <%- include('../partials/footer'); %>
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         </footer>
     </body>
 </html>

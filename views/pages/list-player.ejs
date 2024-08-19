@@ -1,0 +1,59 @@
+<div class="jumbotron">
+    <h1>Demo Prevent Concurrency Update Delete On Record</h1>
+    <p>Welcome to my first application on Google Cloud</p>
+    
+    <div class="wrap-header row">
+        <h4 class="col">This is my list player</h4>
+        <button type="button" class="btn btn-success btn-add-player">Add player</button>
+    </div>
+
+    <div class="wrap-list-player">
+        <% listPlayer.map(player => { %>
+            <div style="background-color: rgb(248, 139, 43); padding: 10px; margin: 20px 0px; border-radius: 10px;" class="row info-player">
+                <div class="col">
+                    <h5><%- player.name %></h6>
+                    <p>Number: <%- player.number %></p>
+                    <p>Balance: <%- player.balance %></p>
+                </div>
+
+                <div class="wrap-button col" style="align-self: center;">
+                    <button type="button" class="btn btn-info btn-update-player" _playerNumber="<%- player.number %>">Update</button>
+                    <button type="button" class="btn btn-danger btn-rm-player" _playerID="<%- player._id %>">Remove</button>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".btn-update-player").click(function(){
+            const playerNumber = $(this).attr('_playerNumber');
+            
+            $.ajax({
+                url: `/update-players?playerNumber=${playerNumber}`,
+                method: 'POST',
+                success: (result) => {
+                    console.log("🚀 ~ $ ~ result:", result)
+                    Toastify({
+                        text: "Update successful!",
+                        style: {
+                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        }
+                    }).showToast();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3500)
+                },
+                error: (err) => {
+                    Toastify({
+                        text: "Oops! Error occurred!",
+                        style: {
+                            background: "linear-gradient(to right, #e28662, #b80000)",
+                        }
+                    }).showToast();
+                }
+            });
+        });
+    });
+</script>
